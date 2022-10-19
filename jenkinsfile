@@ -1,0 +1,52 @@
+pipeline {
+  agent {
+
+    docker {
+      image 'egupoff/alpine-maven-agent:latest'
+    }
+
+  }
+
+  stages {
+
+    stage('Copy source with configs') {
+      steps {
+        git(url: 'https://github.com/egupov/boxfuse.git', branch: 'master', poll: true, credentialsId: 'git')
+        sh 'ssh-keyscan -H devbuild-srv01 >> ~/.ssh/known_hosts'
+        sh 'scp jenkins@devbuild-srv01:/home/jenkins/build/configs/staging/gateway-api/application-business-config-defaults.yml gateway-api/src/main/resources/application-business-config-defaults.yml'
+      }
+    }
+
+    stage('Build jar') {
+      steps {
+        sh 'cd boxfuse && mvn package'
+      }
+    }
+
+    stage('Make docker image') {
+      steps {
+        sh 'cd /root'
+        git(url: 'https://github.com/egupov/jenkins-docker-in-docker.git', branch: 'master', poll: true, credentialsId: 'git') 
+        sh 'mkdir /root/jenkins-docker-in-docker/app && cp -R /usr/src/app/boxfuse/target/hello-1.0.war' 
+        sh 
+        sh 'docker image build -t myproject-app . && docker tag myproject-app:latest egupoff/myproject-app:latest && docker push egupoff/myproject-app:latest'
+        sh '''docker tag gateway-api devcvs-srv01:5000/shop2-backend/gateway-api:2-staging && docker push devcvs-srv01:5000/shop2-backend/gateway-api:2-staging'''
+
+      }
+    }
+
+    stage('Run docker on devbe-srv01') {
+      steps {
+        sh 'ssh-keyscan -H devbe-srv01 >> ~/.ssh/known_hosts'
+        sh '''ssh jenkins@devbe-srv01 << EOF
+	sudo docker pull devcvs-srv01:5000/shop2-backend/gateway-api:2-staging
+	cd /etc/shop/docker
+	sudo docker-compose up -d
+EOF'''
+      }
+    }
+  }
+  triggers {
+    pollSCM('*/1 H * * *')
+  }
+}
