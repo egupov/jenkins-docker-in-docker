@@ -19,5 +19,5 @@ RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-
+COPY ./image/Dockerfile /usr/src/app
 CMD ["/bin/sh"]

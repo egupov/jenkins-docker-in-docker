@@ -22,7 +22,7 @@ ENV TOMCAT_NATIVE_LIBDIR=$CATALINA_HOME/native-jni-lib
 ENV LD_LIBRARY_PATH=$CATALINA_HOME/native-jni-lib
 
 WORKDIR $CATALINA_HOME
-COPY hello-1.0.war ./webapps
+COPY /usr/src/app/boxfuse/target/hello-1.0.war ./webapps
 USER tomcat
 EXPOSE 8080
 
