@@ -1,5 +1,5 @@
 pipeline {
-  agent all {
+  agent {
 
     docker {
       image 'egupoff/alpine-maven-agent:latest'
