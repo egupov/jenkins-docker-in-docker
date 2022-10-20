@@ -13,7 +13,7 @@ pipeline {
 
     stage('Copy source with configs') {
       steps {
-        sh 'docker run --rm -v "/var/run/docker.sock:/var/run/docker.sock:rw" egupoff/alpine-maven-agent /bin/sh'
+        sh 'docker run -v "/var/run/docker.sock:/var/run/docker.sock:rw" egupoff/alpine-maven-agent /bin/sh'
         sh 'git clone https://github.com/egupov/boxfuse.git'
       }
     }
