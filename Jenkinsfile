@@ -13,8 +13,8 @@ pipeline {
 
     stage('Copy source with configs') {
       steps {
-        sh 'docker run -i -v "/var/run/docker.sock:/var/run/docker.sock:rw" egupoff/alpine-maven-agent /bin/sh'
-        sh 'git clone https://github.com/egupov/boxfuse.git'
+        git 'https://github.com/egupov/boxfuse.git'
+        sh 'mvn clean package'
       }
     }
     stage('Build jar') {
@@ -22,7 +22,12 @@ pipeline {
         sh 'cd boxfuse && mvn package'
       }
     }
-
+    stage('Get docker socket group') {
+      steps {
+        script {
+          DOCKER_GROUP = sh(returnStdout: true, script: 'stat -c %g /var/run/docker.sock').trim()
+      }
+    }
     stage('Make docker image') {
       steps {
         sh 'docker image build -t myproject-app . && docker tag myproject-app:latest egupoff/myproject-app:latest'
