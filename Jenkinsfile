@@ -35,5 +35,11 @@ pipeline {
           sh 'docker push egupoff/myproject-app:latest'
         }
       }
+
+      stage('Cleaning up') {
+        steps {
+          sh "docker rmi egupoff/myproject-app:latest"
+        }
+      }
     }
   }
