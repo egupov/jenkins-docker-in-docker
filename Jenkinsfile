@@ -13,7 +13,7 @@ pipeline {
 
     stage('Copy source with configs') {
       steps {
-        git(url: 'https://github.com/egupov/boxfuse.git, branch: 'master', poll: true, credentialsId: 'git'')
+        git(url: 'https://github.com/egupov/boxfuse.git', branch: 'master', poll: true, credentialsId: 'git'')
       }
     }
 
