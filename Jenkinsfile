@@ -31,7 +31,7 @@ pipeline {
 
     stage('Push image') {
       steps {
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        def docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
           app.push("egupoff/myproject-app:latest")
           app.push("latest")
         }
