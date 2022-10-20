@@ -19,7 +19,7 @@ pipeline {
 
     stage('Build jar') {
       steps {
-        sh 'cd boxfuse && mvn package'
+        sh 'cd /usr/src/app/boxfuse && mvn package'
       }
     }
 
