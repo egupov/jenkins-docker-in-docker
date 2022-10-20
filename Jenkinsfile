@@ -1,4 +1,7 @@
 pipeline {
+  environment {
+    dockerhub=credentials('docker-hub-credentials')
+  }
   agent {
 
     docker {
@@ -26,13 +29,13 @@ pipeline {
         git(url: 'https://github.com/egupov/jenkins-docker-in-docker.git', branch: 'master', poll: true, credentialsId: 'git') 
         sh 'cp /usr/src/app/boxfuse/target/hello-1.0.war /root/jenkins-docker-in-docker/' 
         sh 'docker image build -t myproject-app . && docker tag myproject-app:latest egupoff/myproject-app:latest'
+        sh 'echo $docker-hub-credentials_PSW | docker login -u $docker-hub-credentials_USR --password-stdin'
       }
     }
 
     stage('Push image') {
-      docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-          app.push("egupoff/myproject-app:latest")
-          app.push("latest")
+      steps {
+          sh 'docker push egupoff/myproject-app:latest'
         }
       }
     }
