@@ -13,10 +13,9 @@ pipeline {
 
     stage('Copy source with configs') {
       steps {
-        docker.build('egupoff/alpine-maven-agent:latest') {
+        sh 'docker run -it -v "/var/run/docker.sock:/var/run/docker.sock:rw" egupoff/alpine-maven-agent /bin/sh'
         sh 'git clone https://github.com/egupov/boxfuse.git'
       }
-    }
     }
     stage('Build jar') {
       steps {
