@@ -1,49 +1,22 @@
-pipeline {
-  environment {
+node {
+    environment {
     dockerhub=credentials('docker-hub-credentials')
   }
-  agent {
-
-    docker {
-      image 'egupoff/alpine-maven-agent:latest'
-    }
-  }
-
-  stages {
-    
-    stage('run') {
-      steps {
-        docker run --rm -d --group-add $(stat -c '%g' /var/run/docker.sock) -v /var/run/docker.sock:/var/run/docker.sock -P egupoff/alpine-maven-agent
-      }
-    }
-    stage('Copy source with configs') {
-      steps {
-        git 'https://github.com/egupov/boxfuse.git'
-        sh 'mvn clean package'
-      }
-    }
-    stage('Build jar') {
-      steps {
-        sh 'cd boxfuse && mvn package'
-      }
-    }
-    stage('Make docker image') {
-      steps {
-        sh 'docker image build -t myproject-app . && docker tag myproject-app:latest egupoff/myproject-app:latest'
+      stage "Container Prep"
+    // do the thing in the container
+      docker.image('egupoff/alpine-maven-agent:latest').inside {
+        // get the codez
+        stage 'Checkout'
+        git url: 'https://github.com/egupov/boxfuse.git'
+        stage 'Build'
+        // Do the build
+        sh "mvn clean install"
+        sh 'cp /root/.m2/repository/com/boxfuse/samples/hello/1.0/hello-1.0.war /usr/src/app'
+        sh 'docker image build -t myproject-app /usr/src/app && docker tag myproject-app:latest egupoff/myproject-app:latest'
+        stage 'Push'
+        // Do the push
         sh 'echo $docker-hub-credentials_PSW | docker login -u $docker-hub-credentials_USR --password-stdin'
-      }
+        sh 'docker push egupoff/myproject-app:latest'
+        sh "docker rmi egupoff/myproject-app:latest"
     }
-
-    stage('Push image') {
-      steps {
-          sh 'docker push egupoff/myproject-app:latest'
-        }
-      }
-
-      stage('Cleaning up') {
-        steps {
-          sh "docker rmi egupoff/myproject-app:latest"
-        }
-      }
-    }
-  }
+}
