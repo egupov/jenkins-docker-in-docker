@@ -13,13 +13,13 @@ pipeline {
 
     stage('Copy source with configs') {
       steps {
-        git 'https://github.com/egupov/boxfuse.git'
+        sh 'git clone https://github.com/egupov/boxfuse.git'
       }
     }
 
     stage('Build jar') {
       steps {
-        sh 'mvn package'
+        sh 'cd boxfuse && mvn package'
       }
     }
 
