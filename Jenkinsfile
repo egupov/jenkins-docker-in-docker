@@ -5,7 +5,7 @@ pipeline {
   agent {
 
     docker {
-      image 'egupoff/alpine-maven-agent:latest'
+      image 'docker run -i -v "/var/run/docker.sock:/var/run/docker.sock:rw" egupoff/alpine-maven-agent:latest'
     }
   }
 
@@ -20,12 +20,6 @@ pipeline {
     stage('Build jar') {
       steps {
         sh 'cd boxfuse && mvn package'
-      }
-    }
-    stage('Get docker socket group') {
-      steps {
-        script {
-          DOCKER_GROUP = sh(returnStdout: true, script: 'stat -c %g /var/run/docker.sock').trim()
       }
     }
     stage('Make docker image') {
