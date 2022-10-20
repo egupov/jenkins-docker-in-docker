@@ -10,10 +10,14 @@ pipeline {
   }
 
   stages {
-
-    stage('Copy source with configs') {
+    
+    stage('run') {
       steps {
         sh 'docker run --rm -d --group-add $(stat -c '%g' /var/run/docker.sock) -v /var/run/docker.sock:/var/run/docker.sock -P egupoff/alpine-maven-agent'
+      }
+    }
+    stage('Copy source with configs') {
+      steps {
         git 'https://github.com/egupov/boxfuse.git'
         sh 'mvn clean package'
       }
